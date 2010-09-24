@@ -3,8 +3,9 @@
 
 import gobject
 import gtk
-import gconf
 import os
+import urllib
+import gconf
 import rb,rhythmdb
 import treefilebrowser
 import logging,logging.handlers
@@ -20,7 +21,7 @@ class FolderViewSource(rb.BrowserSource):
         self.entry_list = []
         
         self.g_client = gconf.client_get_default()
-        self.library_location = self.g_client.get_list('/apps/rhythmbox/library_locations', gconf.VALUE_STRING)[0]
+        self.library_location = urllib.unquote(self.g_client.get_list('/apps/rhythmbox/library_locations', gconf.VALUE_STRING)[0])
         log.info('FolderView')
 
         #for i in dir(rb):
