@@ -4,10 +4,15 @@
 import gobject
 import gtk
 import rb
+import rhythmdb
 import logging,logging.handlers
 from FolderViewSource import FolderViewSource
 
 log=logging.getLogger('FolderView')
+
+class FolderViewEntryType(rhythmdb.EntryType):
+    def __init__(self):
+        rhythmdb.EntryType.__init__(self, name = 'FolderViewType')
 
 class FolderView (rb.Plugin):
     def __init__(self):
@@ -24,7 +29,11 @@ class FolderView (rb.Plugin):
 
         group = rb.rb_source_group_get_by_name ("library")
         self.db = shell.get_property("db")
-        self.entry_type = self.db.entry_register_type("FolderViewEntryType")
+        try:
+            self.entry_type = FolderViewEntryType()
+            self.db.register_entry_type(self.entry_type)
+        except NotImplementedError:
+            self.entry_type = self.db.entry_register_type("FolderViewEntryType")
         self.source = gobject.new (FolderViewSource,
                                     shell=self.shell,
                                     name="Folder View",
@@ -38,7 +47,7 @@ class FolderView (rb.Plugin):
         
     def deactivate(self, shell):
         log.info("deactivate")
-        self.db.entry_delete_by_type(self.entry_type)
+        #self.db.entry_delete_by_type(self.entry_type)
         self.db.commit()
         self.db = None
         self.entry_type = None
