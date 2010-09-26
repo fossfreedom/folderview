@@ -5,6 +5,7 @@ import gobject
 import gtk
 import os
 import gio
+import copy
 import urllib
 import gconf
 import rb,rhythmdb
@@ -19,37 +20,40 @@ class FolderViewSource(rb.BrowserSource):
     def __init__(self):
         rb.BrowserSource.__init__(self)
 
-        self.entry_list = []
+        self.shell = None
         
         self.g_client = gconf.client_get_default()
         self.library_location = urllib.unquote(self.g_client.get_list('/apps/rhythmbox/library_locations', gconf.VALUE_STRING)[0])
         log.info('FolderView')
 
     def do_impl_activate(self):
-        self.shell  = self.get_property('shell')
-        self.db     = self.shell.get_property('db')
-        self.entry_type=self.get_property('entry-type')
+        log.info('Activate')
+        if self.shell == None:
+            self.shell  = self.get_property('shell')
+            self.db     = self.shell.get_property('db')
+        
         rb.BrowserSource.do_impl_activate(self)
 
     def set_entry(self, uri):
         entry = self.db.entry_lookup_by_location(uri)
         if entry != None:
             if self.db.entry_get(entry, rhythmdb.PROP_DURATION) != 0:
-                log.info(uri)
-                self.props.query_model.add_entry(entry, -1)
+                self.props.base_query_model.add_entry(entry, 0)
 
     def on_treeview_cursor_changed(self, widget):
         for row in self.props.query_model:
             entry = row[0]
             self.props.query_model.remove_entry(entry)
         
-        model = widget.get_model()
         path = self.filebrowser.get_selected()
         for item in os.listdir(path):
             filename = os.path.join(path, item)
             if os.path.isfile(filename):
                 self.set_entry(path_to_uri(filename))
-                pass
+        #query = self.db.query_new()
+        #song_type = self.db.entry_type_get_by_name('song')
+        #self.db.query_append(query, (rhythmdb.QUERY_PROP_EQUALS, rhythmdb.PROP_TYPE, song_type))
+        #self.db.do_full_query_parsed(self.props.query_model, query)
         self.db.commit()
 
     def do_impl_pack_paned (self, paned):
