@@ -12,7 +12,7 @@ log=logging.getLogger('FolderView')
 
 class FolderViewEntryType(rhythmdb.EntryType):
     def __init__(self):
-        rhythmdb.EntryType.__init__(self, name = 'song')
+        rhythmdb.EntryType.__init__(self, name = 'FolderViewEntryType')
 
 class FolderView (rb.Plugin):
     def __init__(self):
@@ -33,7 +33,10 @@ class FolderView (rb.Plugin):
             self.entry_type = FolderViewEntryType()
             self.db.register_entry_type(self.entry_type)
         except NotImplementedError:
-            self.entry_type = self.db.entry_register_type("song")
+            self.entry_type = self.db.entry_register_type("FolderViewEntryType")
+        self.entry_type.can_sync_metadata = True
+        self.entry_type.save_to_disk = True
+        self.entry_type.category = rhythmdb.ENTRY_STREAM
         self.source = gobject.new (FolderViewSource,
                                     shell=self.shell,
                                     name="Folder View",
