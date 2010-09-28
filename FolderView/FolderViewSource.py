@@ -31,8 +31,18 @@ class FolderViewSource(rb.BrowserSource):
             self.db         = self.shell.get_property('db')
             self.entry_type = self.get_property('entry-type')
             self.entry_view = self.get_entry_view()
-        
+
+        ui_browse=self.shell.get_ui_manager().get_widget('/ToolBar/Browse')
+        #ui_browse.set_sensitive(False)
+        ui_browse.hide()
         rb.BrowserSource.do_impl_activate(self)
+
+    def do_impl_deactivate(self):
+        log.info('Deactivate')
+        ui_browse=self.shell.get_ui_manager().get_widget('/ToolBar/Browse')
+        ui_browse.show()
+        rb.BrowserSource.do_impl_deactivate(self)
+        #uim.get_widget('/ToolBar/Browse').set_sensitive(False)
 
     #def set_entry(self, uri):
     #    entry = self.db.entry_lookup_by_location(uri)
