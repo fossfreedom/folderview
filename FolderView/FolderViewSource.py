@@ -58,6 +58,11 @@ class FolderViewSource(rb.BrowserSource):
         self.db.query_append(self.query, (rhythmdb.QUERY_PROP_PREFIX, rhythmdb.PROP_LOCATION, path_to_uri(path)))
         self.db.do_full_query_parsed(self.props.query_model, self.query)
 
+        if self.shell.props.shell_player.props.playing:
+            pass
+        else:
+            self.shell.props.shell_player.stop()
+
     def do_impl_pack_paned (self, paned):
         self.__paned_box = gtk.HPaned()
         self.filebrowser = treefilebrowser.TreeFileBrowser(self.library_location[7:])
