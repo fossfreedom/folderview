@@ -12,6 +12,7 @@ import treefilebrowser
 import logging,logging.handlers
 
 log=logging.getLogger('FolderView')
+LAST_PATH_KEY = '/rhythmbox.plugin.FolderView.lastpath'
 
 class FolderViewSource(rb.BrowserSource):
     #__gproperties__ = {'plugin': (rb.Plugin, 'plugin', 'plugin', gobject.PARAM_WRITABLE|gobject.PARAM_CONSTRUCT_ONLY),}
@@ -31,10 +32,12 @@ class FolderViewSource(rb.BrowserSource):
             self.db         = self.shell.get_property('db')
             self.entry_type = self.get_property('entry-type')
             self.entry_view = self.get_entry_view()
+            self.filebrowser.set_active_dir(gconf.client_get_default().get_without_default(LAST_PATH_KEY).get_string())
 
         ui_browse=self.shell.get_ui_manager().get_widget('/ToolBar/Browse')
         #ui_browse.set_sensitive(False)
         ui_browse.hide()
+        #gconf.client_get_default().set_string(LAST_PATH_KEY,userName)
         rb.BrowserSource.do_impl_activate(self)
 
     def do_impl_deactivate(self):
@@ -59,6 +62,7 @@ class FolderViewSource(rb.BrowserSource):
         self.query = self.db.query_new()
         song_type = self.db.entry_type_get_by_name('song')
         path = self.filebrowser.get_selected()
+        gconf.client_get_default().set_string(LAST_PATH_KEY,path)
         #for item in os.listdir(path):
         #    filename = os.path.join(path, item)
         #    if os.path.isfile(filename):
